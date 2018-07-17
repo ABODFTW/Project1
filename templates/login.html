@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block title %}
+Login Page
+{% endblock%}
+
+{% block body %}
+<div class="offset-3  mt-5">
+    <h1 class="display-6">Login Form</h1>
+<div class="row mt-5">
+    <div class="col-6">
+        <form action="{{ url_for('myaccount')}}" method="POST">
+            <div class="form-group">
+                <label for="">Email or Username</label>
+                <input type="text" class="form-control mb-2" name="email_user" placeholder="Email or Username">
+                <label for="">Password</label>
+                <input type="password" class="form-control mb-2" name="password" placeholder="Password">
+                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </form>
+        <div class="alert alert-warning" role="alert">
+            <strong>{{message}}</strong>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

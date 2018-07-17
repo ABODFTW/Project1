@@ -1,0 +1,33 @@
+body{
+    background: #eee;
+}
+.brand{
+    font-weight: bold;
+    color:white;
+}
+.brand:hover{
+    color:greenyellow;
+}
+.nav{
+    background-color: #666;
+    padding: 1em;
+}
+.nav li , .nav li{
+    display: inline;
+    padding: 1em;
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: none;
+}
+.books_ls{
+    padding: 1em;
+    margin-bottom: 10px;
+    background-color: #f3ead9;
+}
+/* 
+@media(max-width:600px){
+    .row li , .row li{
+        display: inline;
+    }
+} */
