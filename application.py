@@ -1,4 +1,5 @@
-from flask import Flask , render_template ,request , redirect , url_for
+from flask import Flask , render_template ,request , redirect , url_for , session
+from flask_session import Session
 
 
 # for data base access 
@@ -17,7 +18,25 @@ engine = create_engine("postgresql://luxtfbnmwwyols:7cec2fdc13db20125040ec2208f2
 db = scoped_session(sessionmaker(bind=engine))
 
 
+
+
+# for search funs 
+# @app.route("/search", methods=["GET", "POST"])
+# def index():
+#     if session.get("notes") is None:
+#         session["notes"] = []
+#     if request.method == "POST":
+#         note = request.form.get("note")
+#         session["notes"].append(note)
+
+    # return render_template("index.html", notes=session["notes"])
+
 app = Flask(__name__)
+
+
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 # ensure responses aren't cached
 if app.config["DEBUG"]:
@@ -66,17 +85,16 @@ def login():
 def myaccount():
     # if request.method == ["GET"]:
     #     return render_template('/unloggedin.html')
-    user_email = request.form.get('email_user')
+    user = request.form.get('user')
     password = request.form.get('password')
-    data = db.execute("SELECT email , password from accounts WHERE email = :email" , {"email" : user_email}).fetchone()
-    user_data = db.execute("SELECT user from accounts WHERE name = :user ", {"user" : user_email}).fetchone()
-
-    if user_email == data[0] or user_email == user_data and password == data[1]:
-        print("The email is {} the password is {}".format(data[0] , data[1]))
-        print("user_email = {}".format(user_email))
-        return render_template('/myaccount.html' , email=user_email)
+    data = db.execute("SELECT * from accounts WHERE lower(name) = lower(:name)" , {"name" : user}).fetchone()
+    # print(data[0])
+    # return render_template('/login.html')
+    if user == data[1]  and password == data[3]:
+        print("The email is {} the password is {}".format(data[2] , data[3]))
+        return render_template('/myaccount.html' , user=user)
     else :
-        return render_template('/login.html')
+        return render_template('/login.html' , message=message)
     
     
 @app.route("/<string:isbn>")
