@@ -1,4 +1,4 @@
-from flask import Flask , render_template ,request , redirect , url_for , session
+from flask import Flask , render_template ,request , redirect , url_for , session ,flash
 from flask_session import Session
 
 
@@ -34,9 +34,6 @@ db = scoped_session(sessionmaker(bind=engine))
 app = Flask(__name__)
 
 
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
 # ensure responses aren't cached
 if app.config["DEBUG"]:
@@ -48,7 +45,12 @@ if app.config["DEBUG"]:
         return response
 
 
-# lists books from the goodreads api and the database
+
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+# lists books from the database
 @app.route("/")
 def index():
     books = db.execute("SELECT * FROM books").fetchall()
@@ -81,25 +83,68 @@ def registered():
 def login():
     return render_template('/login.html')
 
-@app.route("/myaccount", methods=["POST"])
+@app.route("/myaccount", methods=["POST" , "GET"])
 def myaccount():
-    # if request.method == ["GET"]:
-    #     return render_template('/unloggedin.html')
-    user = request.form.get('user')
-    password = request.form.get('password')
-    data = db.execute("SELECT * from accounts WHERE lower(name) = lower(:name)" , {"name" : user}).fetchone()
-    # print(data[0])
-    # return render_template('/login.html')
-    if user == data[1]  and password == data[3]:
-        print("The email is {} the password is {}".format(data[2] , data[3]))
-        return render_template('/myaccount.html' , user=user)
+    print(request.method)
+    if request.method == "POST":
+        user = request.form.get('user')
+        password = request.form.get('password')
+        try:
+            data = db.execute("SELECT * from accounts WHERE lower(name) = lower(:name)" , {"name" : user}).fetchone()
+        except:
+            return render_template('/login.html' , message="Password or email is wrong")
+        try:
+            if user == data[1] and password == data[3]:
+                print("The email is {} the password is {}".format(data[2] , data[3]))
+                session['user']= request.form['user']
+                return render_template('/myaccount.html' , user=user)
+        except:
+            return render_template('/login.html' , message="Password or email is wrong")
     else :
-        return render_template('/login.html' , message=message)
-    
-    
+        return render_template('/unloggedin.html')
+
 @app.route("/<string:isbn>")
 def details(isbn):
     books = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
     if books is None:
         return render_template("error.html", message="No such books.")
     return render_template("book.html" , book=books)
+
+
+
+"""This is Search Functionality"""
+@app.route("/search")
+def search():
+    return render_template("search.html")
+
+@app.route("/results" , methods=["POST"])
+def results():
+    # Fetch data from the database 
+    rsl = request.form.get('search')
+    search = f"%{rsl}%"
+    chkisbn = db.execute("SELECT * FROM books WHERE isbn like :isbn", {"isbn": search}).fetchall()
+    chkauthor = db.execute("SELECT * FROM books WHERE author Ilike :author", {"author": search}).fetchall()
+    chktitle = db.execute("SELECT * FROM books WHERE title Ilike :title", {"title": search}).fetchall()
+
+    if chkisbn != []:
+        return render_template("results.html" , results=chkisbn)
+    elif chkauthor != []:
+        return render_template("results.html" , results=chkauthor)
+    elif chktitle != []:
+        return render_template("results.html" , results=chktitle)
+    else : 
+        return render_template('search.html' , error="No such a book!")
+    
+    # else:
+    #     return render_template("results.html" , results="There is no results" )
+
+    # chkisbn = db.execute("SELECT * FROM books WHERE isbn contain :isbn " , {"isbn" : search}).fetchall()
+    # chktitle =  db.execute("SELECT * FROM books WHERE title = :title", {"title": search}).fetchall()
+    # chkauthor =  db.execute("SELECT * FROM books WHERE author = :author", {"author": search}).fetchall()
+    # SELECT * FROM mytable
+    # WHERE column1 LIKE '%word1%'
+    # AND column1 LIKE '%word2%'
+    # AND column1 LIKE '%word3%'
+    # print(chkisbn)
+
+    

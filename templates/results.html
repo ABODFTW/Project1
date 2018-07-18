@@ -1,0 +1,18 @@
+{% extends 'layout.html' %} {% block body %}
+<ul>
+    {% for book in results %}
+    <div class="books_ls">
+        <h4>{{book.title}}</h4>
+        <p>
+            This <strong>{{book.title}}</strong> book from <strong>{{book.author}}</strong> it realese in <strong>{{book.year}}</strong>
+
+            for more details you can click <a href="{{ url_for('details' , isbn=book.isbn)}}">here</a>
+        </p>
+
+    </div>
+    
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
