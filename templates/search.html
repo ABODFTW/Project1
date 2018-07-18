@@ -1,14 +1,17 @@
 {% extends 'layout.html' %}
 
 {% block body%}
+{% if session['user']%}
 <form action="{{ url_for('results')}}" method="POST">
-    <div class="form-group">
-      <label for="Search">Type The isbn or the author name or the book name :</label>
-      <input type="search" name="search" id="" class="form-control" placeholder="" aria-describedby="helpId">
-      <button type="submit" class="form-control btn btn-primary">Submit</button>
-    </div>
-    {{ error }}
+  <div class="form-group">
+    <label for="Search">Type The isbn or the author name or the book name :</label>
+    <input type="search" name="search" id="" class="form-control" placeholder="" aria-describedby="helpId">
+    <button type="submit" class="form-control btn btn-primary">Submit</button>
+  </div>
+  {{ error }}
 </form>
+{% else %}
 
-
+<strong>Sorry but you have to <a href="{{ url_for('login')}}">login</a> to search or if you don't have an account register from here <a href="{{ url_for('register')}}">register</a></strong>
+{% endif %}
 {% endblock %}

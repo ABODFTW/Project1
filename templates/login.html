@@ -17,9 +17,13 @@ Login Page
                 <button type="submit" class="btn btn-success">Submit</button>
             </div>
         </form>
+        {% if request.args.get('message') %}
+        
         <div class="alert alert-warning" role="alert">
-            <strong>{{message}}</strong>
+            <strong>{{request.args.get('message')}}</strong>
         </div>
+
+        {% endif %}
     </div>
 </div>
 </div>

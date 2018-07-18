@@ -1,22 +1,25 @@
-{% extends '/layout.html' %} {% block body %}
+{% extends '/layout.html' %} {% block body %} {% if session['user'] %}
+<h1>You already logged in</h1>
+
+{% else %}
 <div class="offset-3  mt-5">
     <h1 class="display-6">Registeration Form</h1>
     <div class="row mt-5">
-            <div class="col-6">
-                <form action="{{ url_for('registered')}}" method="POST">
-                    <div class="form-group">
-                        
-                        <label for="">Username</label>
-                        <input type="text" class="form-control mb-2" name="name" placeholder="Username">
-                        <label for="">Email</label>
-                        <input type="email" class="form-control mb-2" name="email" placeholder="email@email.com">
-                        <label for="">Password</label>
-                        <input type="password" class="form-control mb-2" name="password" placeholder="Password">
-                        <button type="submit" class="btn btn-success">Submit</button>
-                        <h3>{{ message }}</h3>
-                    </div>
-                </form>
-            </div>
+        <div class="col-6">
+            <form action="{{ url_for('registered')}}" method="POST">
+                <div class="form-group">
+                    <label for="">Username</label>
+                    <input type="text" class="form-control mb-2" name="name" placeholder="Username">
+                    <label for="">Email</label>
+                    <input type="email" class="form-control mb-2" name="email" placeholder="email@email.com">
+                    <label for="">Password</label>
+                    <input type="password" class="form-control mb-2" name="password" placeholder="Password">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <h3>{{ message }}</h3>
+                </div>
+            </form>
+        </div>
     </div>
-</ class="offset-3">
-{% endblock %}
+</div>
+
+{% endif %} {% endblock %}

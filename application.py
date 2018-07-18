@@ -53,9 +53,12 @@ Session(app)
 # lists books from the database
 @app.route("/")
 def index():
-    books = db.execute("SELECT * FROM books").fetchall()
-    print(books)
-    return render_template('/index.html' , books=books)
+    if session.get("user"):
+        books = db.execute("SELECT * FROM books").fetchall()
+        # print(books)
+        return render_template('/index.html' , books=books)
+    else:
+        return render_template('/index.html')
         
     
 @app.route("/register")
@@ -66,11 +69,16 @@ def register():
 
 @app.route("/registered", methods=["POST"])
 def registered():
+    def Spacecleaner(text):
+        text.strip()
+        " ".join(text.split())
+        return string
+
     user = request.form.get("name")
     email = request.form.get("email")
     password = request.form.get("password")
     if email and password and user != "":
-        print("your email is {} , and the password is {}".format(email , password , user))
+        # print("your email is {} , and the password is {}".format(email , password , user))
         db.execute("INSERT INTO accounts (name ,email , password) VALUES (:name ,:email , :password )" ,{
             "name" : user , "email" : email , "password" : password
         })
@@ -79,29 +87,33 @@ def registered():
     else:
         return redirct(url_for('register'))
 
-@app.route("/login")
+@app.route("/login" , methods=["POST" , "GET"])
 def login():
     return render_template('/login.html')
 
 @app.route("/myaccount", methods=["POST" , "GET"])
 def myaccount():
     print(request.method)
-    if request.method == "POST":
-        user = request.form.get('user')
-        password = request.form.get('password')
+    user = request.form.get('user')
+    password = request.form.get('password')
+    if request.method == "POST":    
         try:
             data = db.execute("SELECT * from accounts WHERE lower(name) = lower(:name)" , {"name" : user}).fetchone()
         except:
-            return render_template('/login.html' , message="Password or email is wrong")
+            return redirect(url_for('login' , message="Username or password is incorrect"))
         try:
             if user == data[1] and password == data[3]:
-                print("The email is {} the password is {}".format(data[2] , data[3]))
-                session['user']= request.form['user']
+                # print("The email is {} the password is {}".format(data[2] , data[3]))
+                session['user']= request.form.get('user')
                 return render_template('/myaccount.html' , user=user)
         except:
-            return render_template('/login.html' , message="Password or email is wrong")
+            # return render_template('/login.html' , message="Password or email is wrong")
+            return redirect(url_for('login' , message="Username or password is incorrect"))
     else :
-        return render_template('/unloggedin.html')
+        if session.get("user"):
+            return render_template('/myaccount.html' , user=session['user'])
+        else:
+            return render_template('/unloggedin.html')
 
 @app.route("/<string:isbn>")
 def details(isbn):
@@ -110,12 +122,21 @@ def details(isbn):
         return render_template("error.html", message="No such books.")
     return render_template("book.html" , book=books)
 
+# @app.before_request
+# def before_request():
+#     if session.get('user') is None:
+#         return redirect(url_for('index'))
 
 
 """This is Search Functionality"""
 @app.route("/search")
 def search():
     return render_template("search.html")
+
+@app.route("/logout")
+def logout():
+    session.pop('user' , None)
+    return redirect(url_for('login'))
 
 @app.route("/results" , methods=["POST"])
 def results():

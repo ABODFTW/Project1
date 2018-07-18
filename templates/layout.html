@@ -26,7 +26,11 @@
           <div class="col"> 
             <div class="float-right">
                 <li><a href="{{ url_for('register')}}">Register</a></li>
+                {% if session['user']%}
+                <li><a href="{{ url_for('logout')}}">logout</a></li>
+                {% else %}
                 <li><a href="{{ url_for('login')}}">login</a></li>
+                {% endif %}
             </div>
           </div>
         </ul>

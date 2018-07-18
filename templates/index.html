@@ -2,6 +2,7 @@
 
 {% block body%}
 
+{% if session['user'] %}
 <ul>
     {% for book in books %}
     <div class="books_ls">
@@ -16,5 +17,9 @@
     
     {% endfor %}
 </ul>
+{% else %}
+<h3>Please login to see the books</h3>
+
+{% endif %}
 
 {% endblock %}
